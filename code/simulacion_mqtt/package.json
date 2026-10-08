@@ -1,0 +1,15 @@
+{
+  "name": "simulacion-mqtt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Broker MQTT local y emulador de la placa ESP32 del sistema de recuperacion de datos climaticos",
+  "scripts": {
+    "broker": "node broker.js",
+    "placa": "node emulador_placa.js"
+  },
+  "dependencies": {
+    "aedes": "^1.2.0",
+    "dotenv": "^16.4.5",
+    "mqtt": "^5.8.0"
+  }
+}
