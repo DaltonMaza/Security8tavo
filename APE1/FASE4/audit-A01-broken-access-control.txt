@@ -1,0 +1,50 @@
+================================================================================
+OWASP AUDIT REPORT - A01:2025 - BROKEN ACCESS CONTROL
+================================================================================
+STATUS: CRITICAL
+OWASP REF: A01:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/src/routes/account.routes.js:18, 24, 32-36, 44-49
+- code/back-end_PIS6TO/src/controllers/accountController.js:8-22, 60-70
+- code/back-end_PIS6TO/src/routes/Placa.js:6-14, 17-33, 35-74
+- code/back-end_PIS6TO/src/routes/weatherState.routes.js:20-23
+
+DESCRIPCIÓN DEL HALLAZGO:
+La API expone operaciones de cuentas, placas y estados meteorológicos sin
+controles de autenticación y autorización consistentes. GET /account y
+GET /account/:external pueden enumerar cuentas. La creación de cuentas acepta
+un rol enviado por el cliente, incluido Administrador. Las rutas de placas
+permiten consultar, crear, modificar y eliminar recursos sin una política de
+acceso. La creación de estados meteorológicos también es pública.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- Las rutas de cuenta no aplican isLoggedIn en las operaciones de consulta y
+  creación/actualización.
+- accountController.js transforma el valor recibido como role y permite
+  seleccionar el rol administrativo.
+- Placa.js registra operaciones CRUD sin middleware de autorización.
+- weatherState.routes.js registra router.post('/', weatherStateController.createState)
+  sin isLoggedIn ni una política administrativa.
+
+IMPACTO EN SEGURIDAD:
+Un atacante no autenticado puede enumerar información de cuentas, crear una
+cuenta privilegiada, modificar o eliminar placas e insertar estados falsos.
+Esto permite escalada vertical de privilegios, manipulación de datos y toma de
+control funcional de la aplicación.
+
+REMEDIACIÓN RECOMENDADA:
+1. Aplicar isLoggedIn a toda ruta privada.
+2. Aplicar isAdmin o una política equivalente a gestión de cuentas, roles y
+   placas.
+3. Ignorar role enviado por clientes públicos y asignar un rol básico en el
+   servidor.
+4. Implementar autorización a nivel de objeto para external_id y placas.
+5. Usar select/serialización explícita para excluir password, token y campos
+   internos de las respuestas.
+6. Añadir pruebas de autorización para cada método y rol.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A01:2025
+- CWE-862: Missing Authorization
+- CWE-863: Incorrect Authorization
+================================================================================

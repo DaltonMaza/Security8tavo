@@ -1,0 +1,42 @@
+================================================================================
+OWASP AUDIT REPORT - A06:2025 - INSECURE DESIGN
+================================================================================
+STATUS: HIGH
+OWASP REF: A06:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/src/routes/auth.routes.js:31-36
+- code/back-end_PIS6TO/src/controllers/authController.js:49-87, 94-126
+
+DESCRIPCIÓN DEL HALLAZGO:
+El diseño de recuperación de contraseña almacena el token en claro, lo
+mantiene válido durante varias horas y no lo invalida después del cambio de
+contraseña. La activación de cuenta se basa únicamente en el correo recibido,
+sin una prueba de posesión mediante token. El flujo tampoco evidencia
+invalidación de sesiones existentes después de la recuperación.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- authController.js asigna account.token y tokenExpiresAt.
+- Después de guardar la nueva contraseña no elimina ni rota el token.
+- activate-account busca por email y cambia el estado de la cuenta.
+- auth.routes.js expone el endpoint de activación sin una prueba adicional.
+
+IMPACTO EN SEGURIDAD:
+Un token capturado puede reutilizarse hasta su expiración para cambiar la
+contraseña. Quien conozca un correo puede activar una cuenta. El compromiso
+de un token o sesión puede persistir después de una recuperación.
+
+REMEDIACIÓN RECOMENDADA:
+1. Generar tokens aleatorios de un solo uso y corta duración.
+2. Guardar solamente un hash del token.
+3. Asociar token a propósito, usuario, expiración y versión de contraseña.
+4. Invalidarlo atómicamente después de utilizarlo.
+5. Invalidar sesiones y JWT existentes tras una recuperación.
+6. Activar cuentas únicamente mediante token de activación verificable.
+7. Usar respuestas uniformes para evitar enumeración de cuentas.
+8. Añadir pruebas de replay, expiración, reutilización y concurrencia.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A06:2025
+- CWE-640: Weak Password Recovery Mechanism for Forgotten Password
+- OWASP Forgot Password Cheat Sheet
+================================================================================

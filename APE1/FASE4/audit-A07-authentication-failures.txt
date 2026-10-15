@@ -1,0 +1,47 @@
+================================================================================
+OWASP AUDIT REPORT - A07:2025 - AUTHENTICATION FAILURES
+================================================================================
+STATUS: CRITICAL
+OWASP REF: A07:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/src/routes/auth.routes.js:31-36
+- code/back-end_PIS6TO/src/controllers/authController.js:26-38, 49-62, 65-71
+- code/back-end_PIS6TO/src/policies/isLoggedIn.js:5-7
+- code/back-end_PIS6TO/src/policies/isAdmin.js:2, 7-10
+- code/back-end_PIS6TO/src/helpers/tokenGeneration.js:24
+
+DESCRIPCIÓN DEL HALLAZGO:
+La activación de cuentas no requiere autenticación ni token. Las respuestas
+de login y recuperación difieren cuando el usuario existe, permitiendo
+enumeración. La autenticación usa cabeceras inconsistentes y el middleware
+administrativo importa validateToken desde un módulo que aparentemente exporta
+solamente generateToken.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- isLoggedIn.js lee el header no estándar Autentication.
+- isAdmin.js utiliza Authorization e importa validateToken desde
+  tokenGeneration.js.
+- tokenGeneration.js exporta generateToken en la línea 24.
+- authController.js produce flujos distinguibles para cuentas existentes.
+
+IMPACTO EN SEGURIDAD:
+Se pueden enumerar cuentas, activar usuarios conociendo su correo y provocar
+que controles administrativos fallen o se implementen de forma inconsistente.
+Esto facilita ataques de fuerza bruta, toma de cuentas y bypass de autorización.
+
+REMEDIACIÓN RECOMENDADA:
+1. Estandarizar Authorization: Bearer <token>.
+2. Centralizar la validación JWT en un único helper probado.
+3. Corregir la importación de isAdmin y añadir pruebas por rol.
+4. Eliminar activación basada solamente en email.
+5. Devolver respuestas uniformes para login y recuperación.
+6. Añadir rate limiting, bloqueo progresivo y alertas de autenticación.
+7. Rotar e invalidar sesiones después de recuperar una cuenta.
+8. Validar estado de cuenta antes de emitir o aceptar tokens.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A07:2025
+- CWE-287: Improper Authentication
+- CWE-204: Observable Response Discrepancy
+- OWASP Authentication Cheat Sheet
+================================================================================

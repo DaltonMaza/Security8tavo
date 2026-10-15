@@ -1,0 +1,44 @@
+================================================================================
+OWASP AUDIT REPORT - A05:2025 - INJECTION
+================================================================================
+STATUS: HIGH
+OWASP REF: A05:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/src/controllers/accountController.js:8-13, 37-46
+- code/back-end_PIS6TO/src/controllers/roleController.js:16-22
+- code/back-end_PIS6TO/src/services/roleServices.js:16-23, 32-37
+- code/back-end_PIS6TO/src/controllers/datosController.js:71-75, 146-155
+
+DESCRIPCIÓN DEL HALLAZGO:
+Los parámetros de consulta se convierten directamente en filtros MongoDB y
+los cuerpos HTTP se transfieren directamente a operaciones de actualización.
+Esto permite intentar introducir operadores como $ne, $regex, $where o
+campos anidados y modificar propiedades no destinadas al cliente.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- accountController.js desestructura req.query y lo pasa a Cuenta.find.
+- roleController.js y roleServices.js reutilizan filtros derivados del
+  cliente.
+- datosController.js pasa req.query a Data.find y req.body a actualizaciones.
+- accountController.js actualiza con el cuerpo completo del cliente.
+
+IMPACTO EN SEGURIDAD:
+La manipulación de filtros puede producir enumeración o acceso no previsto.
+Las actualizaciones masivas pueden cambiar role, state, token o metadatos,
+facilitando escalada de privilegios y corrupción de datos.
+
+REMEDIACIÓN RECOMENDADA:
+1. Definir allowlists explícitas de filtros y campos actualizables.
+2. Rechazar claves con prefijo $ o que contengan punto.
+3. Usar mongoose.sanitizeFilter como defensa adicional.
+4. Crear DTOs separados para creación, consulta y actualización.
+5. Aplicar strict: true y runValidators: true en actualizaciones.
+6. Validar tipos, formatos, límites y valores permitidos.
+7. Nunca pasar req.query o req.body directamente a Mongoose.
+8. Añadir pruebas de regresión para operadores MongoDB y mass assignment.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A05:2025
+- CWE-943: Improper Neutralization of Special Elements in Data Query Logic
+- CWE-915: Improperly Controlled Modification of Dynamically-Determined Object Attributes
+================================================================================
