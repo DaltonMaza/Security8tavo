@@ -1,0 +1,43 @@
+================================================================================
+OWASP AUDIT REPORT - A09:2025 - LOGGING & ALERTING FAILURES
+================================================================================
+STATUS: HIGH
+OWASP REF: A09:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/src/controllers/authController.js:103-115
+- code/back-end_PIS6TO/src/middlewares/errorHandler.js:1-8
+- code/simulacion_mqtt/broker.js:53-60
+
+DESCRIPCIÓN DEL HALLAZGO:
+El flujo de recuperación registra objetos completos de cuenta, que pueden
+contener hashes, tokens, expiraciones y datos personales. El manejador de
+errores registra y expone message/details. El broker registra payloads MQTT
+sin redacción. No se evidencia monitoreo suficiente para cambios de
+privilegios, fallos JWT o publicaciones MQTT no autorizadas.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- authController.js registra la cuenta o el usuario guardado completo.
+- errorHandler.js devuelve error.message y error.details al consumidor.
+- broker.js registra tópicos y payloads recibidos.
+
+IMPACTO EN SEGURIDAD:
+Los logs pueden convertirse en una fuente de tokens de recuperación, datos
+personales y detalles de infraestructura. La ausencia de alertas retrasa la
+detección de abuso, escalada de privilegios y actividad MQTT anómala.
+
+REMEDIACIÓN RECOMENDADA:
+1. No registrar objetos completos de cuenta, hashes, tokens ni secretos.
+2. Aplicar redacción estructurada y allowlists de campos logueables.
+3. No registrar payloads MQTT completos en producción.
+4. Devolver mensajes genéricos y conservar detalles en logs protegidos.
+5. Usar logging estructurado con correlación de solicitudes.
+6. Alertar sobre creación de administradores, activaciones anómalas, fallos
+   JWT, cambios de contraseña y publicaciones MQTT no autorizadas.
+7. Definir retención, acceso, integridad y revisión de logs.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A09:2025
+- CWE-532: Insertion of Sensitive Information into Log File
+- CWE-778: Insufficient Logging
+- OWASP Logging Cheat Sheet
+================================================================================

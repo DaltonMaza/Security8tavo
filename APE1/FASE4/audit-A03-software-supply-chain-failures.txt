@@ -1,0 +1,52 @@
+================================================================================
+OWASP AUDIT REPORT - A03:2025 - SOFTWARE SUPPLY CHAIN FAILURES
+================================================================================
+STATUS: CRITICAL
+OWASP REF: A03:2025
+COMPONENTES AFECTADOS:
+- APE1/FASE4/software-supply-chain-auditoria.txt:91-99, 208-215
+- code/back-end_PIS6TO/package.json:10-26
+- code/front-end_PIS6TO/package.json:10-31
+- code/simulacion_mqtt/package.json:10-14
+- code/front-end_PIS6TO/azure-pipelines.yml:17-20
+- code/back-end_PIS6TO/.github/workflows/sonarqube.yml:45
+
+DESCRIPCIÓN DEL HALLAZGO:
+El informe de npm audit documenta 28 vulnerabilidades, incluidas 15 de
+severidad alta y 3 críticas. También documenta vulnerabilidades de Mongoose y
+de xlsx, incluyendo prototype pollution sin corrección disponible en el estado
+auditado. Los manifiestos usan rangos mutables con ^ y el pipeline utiliza
+npm install en vez de npm ci. Los lockfiles y un SHA de SonarQube aportan
+integridad parcial, pero no eliminan dependencias vulnerables ni garantizan
+una política de actualización segura.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- software-supply-chain-auditoria.txt:91-99 reporta una vulnerabilidad crítica
+  de Mongoose.
+- software-supply-chain-auditoria.txt:208-215 reporta xlsx vulnerable y el
+  total de vulnerabilidades.
+- Los package.json contienen rangos mutables.
+- azure-pipelines.yml:17-20 ejecuta npm install.
+- sonarqube.yml:45 fija una acción por commit SHA, control positivo aislado.
+
+IMPACTO EN SEGURIDAD:
+Una dependencia vulnerable puede permitir inyección, prototype pollution,
+denegación de servicio, ejecución de código o compromiso de datos según el
+flujo explotable. La instalación no reproducible y la falta de un umbral de
+bloqueo permiten introducir componentes vulnerables en builds posteriores.
+
+REMEDIACIÓN RECOMENDADA:
+1. Actualizar o sustituir Mongoose, xlsx y el resto de dependencias reportadas.
+2. Ejecutar npm audit y SCA en cada pipeline.
+3. Fallar el pipeline ante vulnerabilidades altas/críticas explotables.
+4. Sustituir npm install por npm ci y mantener lockfiles sincronizados.
+5. Evaluar npm ci --ignore-scripts y revisar scripts de instalación.
+6. Separar dependencias de producción y desarrollo.
+7. Sustituir xlsx o aislar su procesamiento con privilegios mínimos.
+8. Mantener un inventario SBOM y una política de actualización con responsables.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A03:2025
+- CWE-1104: Use of Unmaintained Third Party Components
+- SLSA: Supply-chain Levels for Software Artifacts
+================================================================================

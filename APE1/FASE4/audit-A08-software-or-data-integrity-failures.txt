@@ -1,0 +1,43 @@
+================================================================================
+OWASP AUDIT REPORT - A08:2025 - SOFTWARE OR DATA INTEGRITY FAILURES
+================================================================================
+STATUS: CRITICAL
+OWASP REF: A08:2025
+COMPONENTES AFECTADOS:
+- code/simulacion_mqtt/broker.js:17-31, 62-68
+- code/arduino_Pis6to/Pis_6to/Pis_6to.ino:53-54, 119
+- code/simulacion_mqtt/emulador_placa.js:58-91
+
+DESCRIPCIÓN DEL HALLAZGO:
+El broker MQTT puede operar sin autenticación ni ACL por tópico. El firmware
+declara credenciales MQTT pero no las utiliza efectivamente. El emulador acepta
+mensajes de control y los marca como ejecutados sin comprobar emisor, firma,
+nonce, timestamp, autorización o replay.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- broker.js habilita el modo anónimo cuando faltan variables de autenticación.
+- Pis_6to.ino conecta al broker en 1883 y no usa las credenciales configuradas.
+- emulador_placa.js procesa mensajes del tópico de comandos y devuelve estado
+  EJECUTADO sin validación de integridad u origen.
+
+IMPACTO EN SEGURIDAD:
+Un atacante puede falsificar telemetría, publicar comandos, modificar
+configuración, generar ACK falsos y degradar la confianza en los datos
+almacenados o en el estado de los dispositivos.
+
+REMEDIACIÓN RECOMENDADA:
+1. Exigir autenticación MQTT y ACL separadas por cliente y tópico.
+2. Usar TLS con validación de certificados.
+3. Utilizar credenciales únicas o certificados por dispositivo.
+4. Separar tópicos de telemetría, configuración y control.
+5. Firmar comandos críticos y validar nonce, timestamp y contador monotónico.
+6. Mantener una allowlist de comandos y validar su esquema.
+7. Rechazar mensajes replayados o fuera de ventana temporal.
+8. Emitir EJECUTADO únicamente tras completar y verificar la operación.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A08:2025
+- CWE-345: Insufficient Verification of Data Authenticity
+- CWE-494: Download of Code Without Integrity Check
+- MQTT v5.0 - Authentication and Authorization
+================================================================================

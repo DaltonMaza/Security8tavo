@@ -1,0 +1,50 @@
+================================================================================
+OWASP AUDIT REPORT - A10:2025 - MISHANDLING OF EXCEPTIONAL CONDITIONS
+================================================================================
+STATUS: HIGH
+OWASP REF: A10:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/src/middlewares/errorHandler.js:4-8
+- code/back-end_PIS6TO/src/controllers/datosController.js:42-44, 154-156, 167-169
+- code/back-end_PIS6TO/src/routes/Placa.js:6-74
+- code/back-end_PIS6TO/src/controllers/accountController.js:8-23
+- code/back-end_PIS6TO/src/controllers/weatherStateController.js:5-27
+- code/simulacion_mqtt/emulador_placa.js:103-111
+
+DESCRIPCIÓN DEL HALLAZGO:
+Las respuestas HTTP devuelven directamente objetos o mensajes de excepción.
+Varias rutas y controladores asíncronos carecen de un wrapper uniforme. En
+Express 4, un rechazo de una función async puede no llegar al middleware de
+errores si no se propaga explícitamente. El simulador ignora excepciones
+durante el cierre.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- errorHandler.js expone error.message y error.details.
+- datosController.js devuelve error directamente en varios catch.
+- Placa.js y varios controladores declaran operaciones async sin manejo
+  explícito homogéneo.
+- emulador_placa.js ignora errores durante el cierre del proceso.
+
+IMPACTO EN SEGURIDAD:
+Se pueden revelar detalles de base de datos, validación, rutas internas o
+infraestructura. Los errores no propagados pueden producir respuestas
+inconsistentes, promesas rechazadas, procesos en estados parciales y fallos
+no observados.
+
+REMEDIACIÓN RECOMENDADA:
+1. Usar un wrapper asyncHandler para todas las rutas asíncronas.
+2. Centralizar el mapeo de errores internos a respuestas públicas genéricas.
+3. Registrar detalles internos de forma segura y con correlación.
+4. Mapear explícitamente errores de validación, autenticación, autorización y
+   persistencia a códigos HTTP adecuados.
+5. Añadir manejadores para unhandledRejection y uncaughtException; terminar
+   controladamente si el proceso queda en estado inseguro.
+6. No ignorar excepciones de cierre: registrarlas y devolver un estado claro.
+7. Añadir pruebas de error, timeout, desconexión de broker y fallos de DB.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A10:2025
+- CWE-209: Generation of Error Message Containing Sensitive Information
+- CWE-755: Improper Handling of Exceptional Conditions
+- OWASP Error Handling Cheat Sheet
+================================================================================

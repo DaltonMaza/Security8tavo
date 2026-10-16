@@ -1,0 +1,46 @@
+================================================================================
+OWASP AUDIT REPORT - A02:2025 - SECURITY MISCONFIGURATION
+================================================================================
+STATUS: HIGH
+OWASP REF: A02:2025
+COMPONENTES AFECTADOS:
+- code/back-end_PIS6TO/app.js:15, 22
+- code/back-end_PIS6TO/src/config/index.js:9-10
+- code/simulacion_mqtt/broker.js:6-9, 62-68
+- code/front-end_PIS6TO/src/app/hooks/Conexion.js:1-2
+
+DESCRIPCIÓN DEL HALLAZGO:
+La configuración permite CORS abierto, valores inseguros por defecto,
+comunicaciones HTTP/MQTT sin cifrado y acceso anónimo al broker cuando no se
+define MQTT_USERNAME. El broker escucha en 0.0.0.0. Estas opciones pueden
+terminar activas en entornos no locales si no existe una validación estricta
+de configuración.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- app.js registra cors() sin una allowlist y lo registra dos veces.
+- index.js usa http://localhost:3000 y mqtt://localhost:1883 como valores por
+  defecto.
+- broker.js informa que la autenticación está deshabilitada si falta
+  MQTT_USERNAME.
+- Conexion.js utiliza una URL HTTP para el frontend/backend.
+
+IMPACTO EN SEGURIDAD:
+Cualquier origen puede intentar consumir la API desde navegador. Las
+credenciales, tokens y datos MQTT pueden interceptarse o modificarse. Un
+broker expuesto y anónimo permite publicar y suscribirse a tópicos sensibles.
+
+REMEDIACIÓN RECOMENDADA:
+1. Configurar CORS con allowlist explícita de orígenes, métodos y cabeceras.
+2. Eliminar el middleware CORS duplicado.
+3. Usar HTTPS y MQTTS con validación de certificados.
+4. Hacer fallar el proceso si faltan secretos, certificados o credenciales
+   fuera del entorno local.
+5. Escuchar en una interfaz privada y aplicar firewall cuando sea posible.
+6. Deshabilitar acceso MQTT anónimo en todo entorno compartido o productivo.
+7. Añadir Helmet o cabeceras equivalentes y validar la configuración en CI/CD.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A02:2025
+- CWE-16: Configuration
+- CIS Controls v8: Secure Configuration of Enterprise Assets and Software
+================================================================================

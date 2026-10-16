@@ -1,0 +1,43 @@
+================================================================================
+OWASP AUDIT REPORT - A04:2025 - CRYPTOGRAPHIC FAILURES
+================================================================================
+STATUS: CRITICAL
+OWASP REF: A04:2025
+COMPONENTES AFECTADOS:
+- code/arduino_Pis6to/Pis_6to/Pis_6to.ino:17-18, 119
+- code/front-end_PIS6TO/src/app/hooks/Conexion.js:2
+- code/back-end_PIS6TO/src/controllers/authController.js:12-17
+
+DESCRIPCIÓN DEL HALLAZGO:
+El firmware contiene credenciales Wi-Fi. La conexión MQTT utiliza el puerto
+1883 sin TLS. El frontend usa HTTP y el controlador de autenticación contiene
+credenciales SMTP en texto claro. Los secretos quedan expuestos en el código,
+en el binario del firmware o en la red.
+
+EVIDENCIA / CÓDIGO AFECTADO:
+- Pis_6to.ino:17-18 define SSID y contraseña Wi-Fi.
+- Pis_6to.ino:119 conecta al broker en el puerto 1883.
+- Conexion.js:2 configura comunicación HTTP.
+- authController.js:12-17 configura usuario y contraseña SMTP literales.
+
+IMPACTO EN SEGURIDAD:
+Un atacante puede extraer credenciales del repositorio o firmware, interceptar
+telemetría y tokens, comprometer la red Wi-Fi o abusar de la cuenta SMTP para
+enviar correos fraudulentos y capturar flujos de recuperación.
+
+REMEDIACIÓN RECOMENDADA:
+1. Revocar y rotar inmediatamente todas las credenciales expuestas.
+2. Usar un gestor de secretos o variables protegidas para SMTP y backend.
+3. Migrar HTTP a HTTPS y MQTT a MQTTS con validación de CA/certificado.
+4. No compilar credenciales permanentes en el firmware; usar provisión segura
+   y credenciales únicas por dispositivo.
+5. Configurar rotación y expiración de claves.
+6. Verificar que JWT_SECRET exista, tenga entropía suficiente y no permita
+   algoritmos ambiguos.
+
+REFERENCIAS Y ESTÁNDARES:
+- OWASP Top 10:2025 - A04:2025
+- CWE-798: Use of Hard-coded Credentials
+- CWE-319: Cleartext Transmission of Sensitive Information
+- NIST SP 800-57: Key Management
+================================================================================
