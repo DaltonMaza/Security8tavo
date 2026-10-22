@@ -14,3 +14,6 @@
 # Archivos de caché
 *.log*
 *.swp
+
+# Script de población de la base de datos
+/scripts
