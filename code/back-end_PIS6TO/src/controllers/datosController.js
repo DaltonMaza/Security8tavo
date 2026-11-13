@@ -27,7 +27,7 @@ module.exports = {
       await data.save();
       return { status: 201, data };
     } catch (error) {
-      return { status: 400, error: "Error al crear el dato", details: error };
+      return { status: 400, error: "Error al crear el dato" };
     }
   },
 
@@ -40,7 +40,7 @@ module.exports = {
       }
       return res.json(data);
     } catch (error) {
-      res.status(400).json({ status: 400, message: "Error al actualizar el dato", error });
+      res.status(400).json({ status: 400, message: "Error al actualizar el dato" });
     }
   },
 
@@ -53,7 +53,7 @@ module.exports = {
       }
       return res.json({ status: 200, message: "Dato eliminado correctamente" });
     } catch (error) {
-      res.status(400).json({ status: 400, message: "Error al eliminar el dato", error });
+      res.status(400).json({ status: 400, message: "Error al eliminar el dato" });
     }
   },
 };
@@ -93,7 +93,7 @@ module.exports = {
       console.log('Datos guardados exitosamente:', savedData);
       return { status: 201, savedData };
     } catch (error) {
-      console.error('Error al guardar los datos:', error);
+      console.error('Error al guardar los datos:');
       throw error; // Re-lanzar el error para manejarlo en el nivel superior si es necesario
     }
   },
@@ -152,7 +152,7 @@ module.exports = {
       }
       return res.json(data);
     } catch (error) {
-      res.status(400).json({ status: 400, message: "Error al actualizar el dato", error });
+      res.status(400).json({ status: 400, message: "Error al actualizar el dato" });
     }
   },
 
@@ -165,7 +165,7 @@ module.exports = {
       }
       return res.json({ status: 200, message: "Dato eliminado correctamente" });
     } catch (error) {
-      res.status(400).json({ status: 400, message: "Error al eliminar el dato", error });
+      res.status(400).json({ status: 400, message: "Error al eliminar el dato" });
     }
   },
 

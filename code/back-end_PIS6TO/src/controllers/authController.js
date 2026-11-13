@@ -25,7 +25,7 @@ module.exports = {
         // const account = await authService.login(email, password);
         const account = await Account.findOne({ email });
         if (!account) {
-            return res.json({ status: 400, message: "La cuenta no fue encontrada" });
+            return res.json({ status: 400, message: "Credenciales incorrectas" });
         }
         if (account.state == "BLOQUEADA") {
             return res.json({ status: 401, message: "Cuenta bloqueada" });
@@ -101,7 +101,7 @@ module.exports = {
     
         try {
             const account = await Account.findOne({ token });
-            console.log("Account found:", account);
+
             if (!account) {
                 return res.json({ status: 400, message: "Token inválido" });
             }

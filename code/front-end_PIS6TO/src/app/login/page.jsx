@@ -29,7 +29,6 @@ export default function Login() {
   const sendData = async (data) => {
     try {
       const { token } = await login(data);
-      console.log(token);
 
       loginUser(token);
 
